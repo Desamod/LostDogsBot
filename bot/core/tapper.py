@@ -299,6 +299,25 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error when getting game status: {error}")
             await asyncio.sleep(delay=3)
 
+    async def view_prev_round(self, http_client: aiohttp.ClientSession):
+        try:
+            json_data = {
+                "operationName": "lostDogsWayViewPrevRound",
+                "variables": {},
+                "extensions": {
+                    "persistedQuery": {
+                        "version": 1,
+                        "sha256Hash": "9d71c4ff04d1f8ec24f23decd0506e7b1b8a0c70ea6bb4c98fcaf6904eb96c35"
+                    }
+                }
+            }
+            response = await http_client.post(f'https://api.getgems.io/graphql', json=json_data)
+            response_json = await response.json()
+            return response_json['data']['lostDogsWayViewPrevRound']
+        except Exception as error:
+            logger.error(f"{self.session_name} | Unknown error when getting game status: {error}")
+            await asyncio.sleep(delay=3)
+
     async def save_game_event(self, http_client: aiohttp.ClientSession, data: Any, event_name: str):
         try:
             json_data = {
@@ -400,6 +419,20 @@ class Tapper:
                     woof_balance = int(user_info['data']['lostDogsWayUserInfo']['woofBalance']) / 1000000000
                     logger.info(
                         f"{self.session_name} | Balance: Bones = <e>{bones_balance}</e>; $WOOF = <e>{woof_balance}</e>")
+                    prev_round_data = user_info['data']['lostDogsWayUserInfo']['prevRoundVote']
+                    if prev_round_data:
+                        logger.info(f"{self.session_name} | Previous round is over | Getting prediction rewards...")
+                        prize = round(int(prev_round_data['woofPrize']) / 1000000000, 2)
+                        if prev_round_data['userStatus'] == 'winner':
+                            not_prize = round(int(prev_round_data['notPrize']) / 1000000000, 2)
+                            logger.success(f"{self.session_name} | Successful card prediction! | "
+                                           f"You got <e>{prize}</e> $WOOF and <y>{not_prize}</y> $NOT")
+                        elif prev_round_data['userStatus'] == 'loser':
+                            logger.info(f"{self.session_name} | Wrong card prediction | You got <e>{prize}</e> $WOOF")
+
+                        await self.view_prev_round(http_client=http_client)
+                        await asyncio.sleep(delay=2)
+
                     await self.processing_tasks(http_client=http_client)
                     await asyncio.sleep(delay=randint(5, 10))
 
