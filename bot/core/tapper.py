@@ -171,8 +171,8 @@ class Tapper:
     async def get_common_tasks(self, http_client: aiohttp.ClientSession):
         try:
             response = await http_client.get(url=f'https://api.getgems.io/graphql?operationName=lostDogsWayCommonTasks&variables='
-                                                 f'%7B%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22'
-                                                 f'sha256Hash%22%3A%22cf88987ab4d6a04b9e84129c5dcc7eb2c6b24c2d249bea385ad208582365dccd%22%7D%7D')
+                                                 f'%7B%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash'
+                                                 f'%22%3A%227c4ca1286c2720dda55661e40d6cb18a8f813bed50c2cf6158d709a116e1bdc1%22%7D%7D')
             response.raise_for_status()
             response_json = await response.json()
             return response_json['data']['lostDogsWayCommonTasks']['items']
@@ -204,7 +204,7 @@ class Tapper:
             common_tasks = await self.get_common_tasks(http_client=http_client)
             done_tasks = await self.get_done_common_tasks(http_client=http_client)
             for task in common_tasks:
-                if task['id'] not in done_tasks and task['id'] != "13":
+                if task['id'] not in done_tasks and task.get('customCheckStrategy') is None:
                     await asyncio.sleep(delay=randint(5, 10))
                     logger.info(f"{self.session_name} | Performing common task <lc>{task['name']}</lc>...")
                     response_data = await self.perform_common_task(http_client=http_client, task_id=task['id'])
