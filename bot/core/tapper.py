@@ -69,14 +69,17 @@ class Tapper:
             user_data = tg_web_data_parts[0].split('=')[1]
             chat_instance = tg_web_data_parts[1].split('=')[1]
             chat_type = tg_web_data_parts[2].split('=')[1]
-            start_param = tg_web_data_parts[3].split('=')[1]
             auth_date = tg_web_data_parts[4].split('=')[1]
             hash_value = tg_web_data_parts[5].split('=')[1]
 
             user_data_encoded = quote(user_data)
 
-            init_data = (f"user={user_data_encoded}&chat_instance={chat_instance}&chat_type={chat_type}&"
-                         f"start_param={start_param}&auth_date={auth_date}&hash={hash_value}")
+            start_param = ''
+            if settings.USE_REF:
+                start_param = f"&start_param={tg_web_data_parts[3].split('=')[1]}"
+
+            init_data = (f"user={user_data_encoded}&chat_instance={chat_instance}&chat_type={chat_type}"
+                         f"{start_param}&auth_date={auth_date}&hash={hash_value}")
 
             if self.tg_client.is_connected:
                 await self.tg_client.disconnect()
