@@ -95,9 +95,9 @@ class Tapper:
 
     async def get_info_data(self, http_client: aiohttp.ClientSession):
         try:
-            url = ('https://api.getgems.io/graphql?operationName=getHomePage&variables=%7B%7D&extensions='
-                   '%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash'
-                   '%22%3A%22d89d3ccd8d9fd69d37d181e2e8303ee78b80e6a26e4500c42e6d9f695257f9be%22%7D%7D')
+            url = ('https://api.getgems.io/graphql?operationName=getHomePage&variables=%7B%7D&extensions=%7B%22'
+                   'persistedQuery%22%3A%7B%22version%22%3A1%2C%22'
+                   'sha256Hash%22%3A%226d07a34b66170fe08f878f8d8b000a5611bd7c8cee8729e5dc41ae848fab4352%22%7D%7D')
             await http_client.options(url=url)
 
             response = await http_client.get(url=url)
