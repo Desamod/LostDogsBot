@@ -439,10 +439,14 @@ class Tapper:
 
                     game_status = user_info['data']['lostDogsWayGameStatus']
                     game_end_at = datetime.fromtimestamp(int(game_status['gameState']['gameEndsAt']))
-                    round_end_at = max(game_status['gameState']['roundEndsAt'] - time(), 0)
-                    logger.info(
-                        f"{self.session_name} | Current round end at: <lc>{int(round_end_at / 60)}</lc> min |"
-                        f" Game ends at : <lc>{game_end_at}</lc>")
+                    round_end = game_status['gameState'].get('roundEndsAt')
+                    if round_end:
+                        round_end_at = max(game_status['gameState']['roundEndsAt'] - time(), 0)
+                        logger.info(
+                            f"{self.session_name} | Current round end at: <lc>{int(round_end_at / 60)}</lc> min |"
+                            f" Game ends at : <lc>{game_end_at}</lc>")
+                    else:
+                        logger.info(f"{self.session_name} | Game ends at : <lc>{game_end_at}</lc>")
 
                 sleep_time = randint(settings.SLEEP_TIME[0], settings.SLEEP_TIME[1])
                 logger.info(f"{self.session_name} | Sleep <y>{sleep_time}</y> seconds")
